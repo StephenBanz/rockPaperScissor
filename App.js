@@ -2,30 +2,17 @@ import React, { Component } from "react";
 import {
   StyleSheet,
   View,
+  Text,
   Animated,
+  Platform, 
+  StatusBar,
   SafeAreaView,
   TouchableOpacity,
   Easing,
-  Text,
+  Image
 } from "react-native";
 import * as Progress from 'react-native-progress';
-
-
-import FemaleIdle from "./assets/img/female_idle.svg";
-import FemalePaper from "./assets/img/female_paper.svg";
-import FemaleRock from "./assets/img/female_rock.svg";
-import FemaleScissors from "./assets/img/female_scissors.svg";
-import MalePaper from "./assets/img/male_paper.svg";
-import MaleRock from "./assets/img/male_rock.svg";
-import MaleScissors from "./assets/img/male_scissors.svg";
-import MaleIdle from "./assets/img/male_idle.svg";
-import UserHpAvatar from "./assets/img/user_hp_avatar.svg";
-import CpuHpAvatar from "./assets/img/cpu_hp_avatar.svg";
-import RockIcon from "./assets/img/rock_icon.svg";
-import PaperIcon from "./assets/img/paper_icon.svg";
-import ScissorsIcon from "./assets/img/scissors_icon.svg";
-import RandomIcon from "./assets/img/random_icon.svg";
-
+import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 export default class animations extends Component {
   state = {
     topHand: new Animated.Value(-100),
@@ -148,26 +135,26 @@ export default class animations extends Component {
   CpuHand = () => {
     switch(this.state.cpuChoice) {
       case 'rock':
-        return(<FemaleRock height={250}/>)
+        return(require('./assets/images/female_rock.png'))
       case 'paper':
-        return(<FemalePaper height={250}/>)
+        return(require('./assets/images/female_paper.png'))
       case 'scissor':
-        return(<FemaleScissors height={250}/>)
+        return(require('./assets/images/female_scissors.png'))
       default:
-        return(<FemaleIdle height={250}/>) 
+        return(require('./assets/images/female_idle.png'))
     }
   }
 
   UserHand = () => {
     switch(this.state.userChoice) {
       case 'rock':
-        return(<MaleRock height={250} style={styles.bottomHand}/>)
+        return(require('./assets/images/male_rock.png'))
       case 'paper':
-        return(<MalePaper height={250} style={styles.bottomHand}/>)
+        return(require('./assets/images/male_paper.png'))
       case 'scissor':
-        return(<MaleScissors height={250} style={styles.bottomHand}/>)
+        return(require('./assets/images/male_scissors.png'))
       default:
-        return(<MaleIdle height={250} style={styles.bottomHand}/>) 
+        return(require('./assets/images/male_idle.png'))
     }
   }
 
@@ -181,11 +168,13 @@ export default class animations extends Component {
     };
     return this.state.winner == '' ? (
       <SafeAreaView style={styles.container}>
-        <View style={[styles.playerContainer,{backgroundColor: 'yellow'}]}>
+        <StatusBar style="auto"/>
+        <View style={[styles.playerContainer,{backgroundColor: ''}]}>
           <Animated.View style={[topHandAnimatedStyles,{flex: 1}]} >
-            {/* <UserHpAvatar/> */}
-            {this.CpuHand()}
+          <Image source={this.CpuHand()} style={styles.bottomHand}/>
           </Animated.View>
+
+          <Image source={require('./assets/images/cpu_hp_avatar.png')}/>
           <View style={styles.progress}>
             
             <Progress.Bar 
@@ -199,8 +188,7 @@ export default class animations extends Component {
             />
           </View>
         </View>
-        {/* <View style={styles.playerContainer}/> */}
-        <View style={[styles.playerContainer,{backgroundColor: 'blue'}]}>
+        <View style={[styles.playerContainer,{backgroundColor: ''}]}>
           <View style={styles.progress}>
             <Progress.Bar 
               progress={this.state.userPoints} 
@@ -212,16 +200,26 @@ export default class animations extends Component {
               style={styles.progessBar}
             />
           </View>
-          <Animated.View style={[bottomHandAnimatedStyles,{ flex: 1, alignItems: 'flex-start'}]} >
-            {this.UserHand()}
-            {/* <CpuHpAvatar/> */}
+
+          <Image source={require('./assets/images/user_hp_avatar.png')}/>
+
+          <Animated.View style={[bottomHandAnimatedStyles,{ flex: 1, alignItems: 'flex-start', zIndex: 99}]} >
+          <Image source={this.UserHand()} style={styles.bottomHand}/>
           </Animated.View>
         </View>
         <View style={{width: '100%', height: 170}}>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('rock')} style={styles.rockIcon}><RockIcon /></TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('paper')} style={styles.paperIcon}><PaperIcon/></TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('scissor')} style={styles.scissorsIcon}><ScissorsIcon/></TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('random')} style={styles.randomIcon}><RandomIcon/></TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.onChoiceClick('rock')} style={styles.rockIcon}>
+            <Image source={require('./assets/images/rock_icon.png')}/>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.onChoiceClick('paper')} style={styles.paperIcon}>
+            <Image source={require('./assets/images/paper_icon.png')}/>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.onChoiceClick('scissor')} style={styles.scissorsIcon}>
+            <Image source={require('./assets/images/scissors_icon.png')}/>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.onChoiceClick('random')} style={styles.randomIcon}>
+            <Image source={require('./assets/images/random_icon.png')}/>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     ) : (
@@ -236,11 +234,14 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingBottom: Platform.OS === 'android' ? StatusBar.currentHeight : 0
     // flexWrap: 'wrap'
   },
   bottomHand: {
-    alignSelf: 'flex-end',
-    marginTop: 'auto'
+    alignSelf: 'center',
+    height: 250, 
+    resizeMode: 'contain'
   },
   playerContainer: {
     flex:1,
