@@ -92,15 +92,11 @@ export default class animations extends Component {
     if (roundWinner == 'user') {
       cpuPoints+=1
       // cpuPoints = (cpuPoints*10 - 3)/10
-      if (cpuPoints == 3) { winner = 'user'}
+      if (cpuPoints >= 3) { winner = 'user'}
     } else if (roundWinner == 'cpu') {
       userPoints+=1
-      if (userPoints == 3) { winner = 'cpu'}
+      if (userPoints >= 3) { winner = 'cpu'}
     }
-    console.log(roundWinner)
-    console.log(cpuPoints)
-    console.log(userPoints)
-    console.log(winner)
     
     this.setState({
       topHand: new Animated.Value(-100), 
