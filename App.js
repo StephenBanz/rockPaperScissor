@@ -24,6 +24,7 @@ import ScissorsIcon from "./assets/images/scissors_icon.svg";
 import RandomIcon from "./assets/images/random_icon.svg";
 
 export default class animations extends Component {
+  // State変数の初期値
   state = {
     topHand: new Animated.Value(-100),
     bottomHand: new Animated.Value(100),
@@ -34,19 +35,23 @@ export default class animations extends Component {
     winner: ''
   };
   
+  // 初期値れセットできるように別の変数に保存
   baseState = this.state
 
+  // 画面起動に時実行される機能
   async componentDidMount(){
     this.startTopHandAnimation()
     this.startBottomHandAnimation()
   }
 
+  // 画面がアップデートされたとき（画面内のStateがアップデートされた時実行される機能）
   async componentDidUpdate(){
     this.startTopHandAnimation()
     this.startBottomHandAnimation()
   
   }
 
+  // 「手」のアニメーション用
   startTopHandAnimation = () => {
     Animated.timing(this.state.topHand, {
       toValue: 20,
@@ -59,6 +64,7 @@ export default class animations extends Component {
     }).start();
   };
 
+  // 「手」のアニメーション用
   startBottomHandAnimation = () => {
     Animated.timing(this.state.bottomHand, {
       toValue: 20,
@@ -71,6 +77,7 @@ export default class animations extends Component {
     }).start();
   };
 
+  // ボタン押下
   onChoiceClick = userChoice => {
     const choices = ['rock', 'paper', 'scissor'];
     let cpuPoints = this.state.cpuPoints
@@ -108,10 +115,12 @@ export default class animations extends Component {
     })
   }
 
+  // ゲームリセット
   restartGame = () => {
     this.setState(this.baseState);
   }
 
+  // そのラウンドの勝者返す
   decideRoundWinner = (userChoice, cpuChoice) => {
     switch(userChoice) {
       case 'rock':
@@ -146,6 +155,7 @@ export default class animations extends Component {
     }
   }
 
+  // CPU手表示
   CpuHand = () => {
     switch(this.state.cpuChoice) {
       case 'rock':
@@ -159,6 +169,7 @@ export default class animations extends Component {
     }
   }
 
+  // Player手表示
   UserHand = () => {
     switch(this.state.userChoice) {
       case 'rock':
@@ -172,17 +183,14 @@ export default class animations extends Component {
     }
   }
 
-  render() {
+  // CPU分表示
+  renderCpu = () => {
     const topHandAnimatedStyles = {
       transform: [{ translateY: this.state.topHand }],
     };
 
-    const bottomHandAnimatedStyles = {
-      transform: [{ translateY: this.state.bottomHand }],
-    };
-    return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="auto"/>
+    return(
+      <>
         <View style={styles.playerContainer}>
           <CpuHpAvatar/><Text style={{fontSize: 40, fontWeight: 'bold', paddingLeft: 20}}>{this.state.cpuPoints}</Text>
         </View>
@@ -204,7 +212,18 @@ export default class animations extends Component {
             ></Progress.Bar>
           </View>
         </View>
-        <View style={{height: 50}}></View>
+      </>
+    )
+  }
+
+  // Player分表示
+  renderPlayer = () => {
+    const bottomHandAnimatedStyles = {
+      transform: [{ translateY: this.state.bottomHand }],
+    };
+
+    return (
+      <>
         <View style={styles.playerContainer}>
           <UserHpAvatar/><Text style={{fontSize: 40, fontWeight: 'bold', paddingLeft: 20}}>{this.state.userPoints}</Text>
         </View>
@@ -224,26 +243,58 @@ export default class animations extends Component {
           <Image source={this.UserHand()} style={styles.hand}/>
           </Animated.View>
         </View>
-        <View style={{width: '100%', height: 170}}>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('rock')} style={styles.rockIcon}><RockIcon /></TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('paper')} style={styles.paperIcon}><PaperIcon/></TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('scissor')} style={styles.scissorsIcon}><ScissorsIcon/></TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('random')} style={styles.randomIcon}><RandomIcon/></TouchableOpacity>
+      </>
+    )
+  }
+
+  // ボタン表示
+  renderButtons = () => {
+    return(
+      <View style={{width: '100%', height: 170}}>
+        <TouchableOpacity onPress={()=>this.onChoiceClick('rock')} style={buttonStyles.rockIcon}><RockIcon /></TouchableOpacity>
+        <TouchableOpacity onPress={()=>this.onChoiceClick('paper')} style={buttonStyles.paperIcon}><PaperIcon/></TouchableOpacity>
+        <TouchableOpacity onPress={()=>this.onChoiceClick('scissor')} style={buttonStyles.scissorsIcon}><ScissorsIcon/></TouchableOpacity>
+        <TouchableOpacity onPress={()=>this.onChoiceClick('random')} style={buttonStyles.randomIcon}><RandomIcon/></TouchableOpacity>
+      </View>
+    )
+  }
+
+  // モーダル表示
+  renderModal = () => {
+    return(
+      <Modal isVisible={this.state.winner != "" ? true : false}>
+        <View style={modalStyles.content}>
+          <Image 
+            source={this.state.winner == 'user' ? require('./assets/images/result_user.png') : require('./assets/images/result_cpu.png')}
+            style={{width: 150, resizeMode: 'contain'}}
+          />
+          <Text style={modalStyles.contentTitle}>YOU {this.state.winner == "user" ? 'WIN' : 'LOSE'}</Text>
+          <TouchableOpacity onPress={this.restartGame}>
+            <Image source={require('./assets/images/restart.png')} style={modalStyles.restartButton}/>
+          </TouchableOpacity>
         </View>
+      </Modal>
+    )
+  }
+
+  render() {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="auto"/>
+        
+        {/* ボタン表示 */}
+        { this.renderCpu() }
+
+        <View style={{height: 50}}></View>
+
+        {/* ボタン表示 */}
+        { this.renderPlayer() }
+        
+        {/* ボタン表示 */}
+        { this.renderButtons() }
 
         {/* ゲーム完了後出るモーダル */}
-        <Modal isVisible={this.state.winner != "" ? true : false}>
-          <View style={modalStyles.content}>
-            <Image 
-              source={this.state.winner == 'user' ? require('./assets/images/result_user.png') : require('./assets/images/result_cpu.png')}
-              style={{width: 150, resizeMode: 'contain'}}
-            />
-            <Text style={modalStyles.contentTitle}>YOU {this.state.winner == "user" ? 'WIN' : 'LOSE'}</Text>
-            <TouchableOpacity onPress={this.restartGame}>
-              <Image source={require('./assets/images/restart.png')} style={modalStyles.restartButton}/>
-            </TouchableOpacity>
-          </View>
-        </Modal>
+        { this.renderModal() }
       </SafeAreaView>      
     );
   }
@@ -255,9 +306,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     paddingBottom: Platform.OS === 'android' ? StatusBar.currentHeight : 0
-    // flexWrap: 'wrap'
   },
   hand: {
     alignSelf: 'center',
@@ -278,8 +327,7 @@ const styles = StyleSheet.create({
     shadowRadius: 25,
     shadowOpacity: 1,
     elevation: 20,
-    borderRadius: 10,
-   
+    borderRadius: 10
   },
   progress: {
     flex: 1,
@@ -287,7 +335,10 @@ const styles = StyleSheet.create({
   },
   progessBar: {
     transform: [{ rotate: '270deg'}]
-  },
+  }
+});
+
+const buttonStyles = StyleSheet.create({
   rockIcon: {
     position: 'absolute',
     bottom: 0,
@@ -310,9 +361,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -75,
     left: '37%'
-  },
-
-
+  }
 });
 
 const modalStyles = StyleSheet.create({
@@ -322,16 +371,16 @@ const modalStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 15,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderColor: 'rgba(0, 0, 0, 0.1)'
   },
   contentTitle: {
     fontSize: 40,
     fontWeight: 'bold',
-    marginTop: 20,
+    marginTop: 20
   },
   restartButton: {
     alignSelf: 'center',
     height: 150, 
     resizeMode: 'contain'
   }
-})
+});
