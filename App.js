@@ -9,21 +9,32 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Easing,
-  Image
+  Image,
+  Button
 } from "react-native";
 import * as Progress from 'react-native-progress';
-import { StatusBar as ExpoStatusBar } from "expo-status-bar";
+import Modal from "react-native-modal";
+
+
+import UserHpAvatar from "./assets/images/user_hp_avatar.svg";
+import CpuHpAvatar from "./assets/images/cpu_hp_avatar.svg";
+import RockIcon from "./assets/images/rock_icon.svg";
+import PaperIcon from "./assets/images/paper_icon.svg";
+import ScissorsIcon from "./assets/images/scissors_icon.svg";
+import RandomIcon from "./assets/images/random_icon.svg";
+
 export default class animations extends Component {
   state = {
     topHand: new Animated.Value(-100),
     bottomHand: new Animated.Value(100),
     userChoice: 'idle',
     cpuChoice: 'idle',
-    cpuPoints: 1,
-    userPoints: 1,
+    cpuPoints: 0,
+    userPoints: 0,
     winner: ''
   };
   
+  baseState = this.state
 
   async componentDidMount(){
     this.startTopHandAnimation()
@@ -31,8 +42,6 @@ export default class animations extends Component {
   }
 
   async componentDidUpdate(){
-    console.log("--")
-    console.log(this.state.winner)
     this.startTopHandAnimation()
     this.startBottomHandAnimation()
   
@@ -76,11 +85,12 @@ export default class animations extends Component {
 
     const roundWinner = this.decideRoundWinner(userChoice, cpuChoice)
     if (roundWinner == 'user') {
-      cpuPoints = (cpuPoints*10 - 2)/10
-      if (cpuPoints <= 0) { winner = 'user'}
+      cpuPoints+=1
+      // cpuPoints = (cpuPoints*10 - 3)/10
+      if (cpuPoints == 3) { winner = 'user'}
     } else if (roundWinner == 'cpu') {
-      userPoints = (userPoints*10 - 2)/10
-      if (userPoints <= 0) { winner = 'cpu'}
+      userPoints+=1
+      if (userPoints == 3) { winner = 'cpu'}
     }
     console.log(roundWinner)
     console.log(cpuPoints)
@@ -96,6 +106,10 @@ export default class animations extends Component {
       userPoints: userPoints,
       winner: winner
     })
+  }
+
+  restartGame = () => {
+    this.setState(this.baseState);
   }
 
   decideRoundWinner = (userChoice, cpuChoice) => {
@@ -166,32 +180,38 @@ export default class animations extends Component {
     const bottomHandAnimatedStyles = {
       transform: [{ translateY: this.state.bottomHand }],
     };
-    return this.state.winner == '' ? (
+    return (
       <SafeAreaView style={styles.container}>
         <StatusBar style="auto"/>
-        <View style={[styles.playerContainer,{backgroundColor: ''}]}>
+        <View style={styles.playerContainer}>
+          <CpuHpAvatar/><Text style={{fontSize: 40, fontWeight: 'bold', paddingLeft: 20}}>{this.state.cpuPoints}</Text>
+        </View>
+        <View style={[styles.subContainer,{backgroundColor: ''}]}>
           <Animated.View style={[topHandAnimatedStyles,{flex: 1}]} >
-          <Image source={this.CpuHand()} style={styles.bottomHand}/>
+          <Image source={this.CpuHand()} style={styles.hand}/>
           </Animated.View>
-
-          <Image source={require('./assets/images/cpu_hp_avatar.png')}/>
+          
           <View style={styles.progress}>
             
             <Progress.Bar 
-              progress={this.state.cpuPoints} 
+              progress={(3 - this.state.cpuPoints) / 3} 
               width={150}
               height={8}
               color="#ffb24c"
               unfilledColor="#232586"
               borderWidth={0}
               style={styles.progessBar}
-            />
+            ></Progress.Bar>
           </View>
         </View>
-        <View style={[styles.playerContainer,{backgroundColor: ''}]}>
+        <View style={{height: 50}}></View>
+        <View style={styles.playerContainer}>
+          <UserHpAvatar/><Text style={{fontSize: 40, fontWeight: 'bold', paddingLeft: 20}}>{this.state.userPoints}</Text>
+        </View>
+        <View style={[styles.subContainer,{backgroundColor: ''}]}>
           <View style={styles.progress}>
             <Progress.Bar 
-              progress={this.state.userPoints} 
+              progress={(3 - this.state.userPoints) / 3} 
               width={150}
               height={8}
               color="#ffb24c"
@@ -200,30 +220,31 @@ export default class animations extends Component {
               style={styles.progessBar}
             />
           </View>
-
-          <Image source={require('./assets/images/user_hp_avatar.png')}/>
-
           <Animated.View style={[bottomHandAnimatedStyles,{ flex: 1, alignItems: 'flex-start', zIndex: 99}]} >
-          <Image source={this.UserHand()} style={styles.bottomHand}/>
+          <Image source={this.UserHand()} style={styles.hand}/>
           </Animated.View>
         </View>
         <View style={{width: '100%', height: 170}}>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('rock')} style={styles.rockIcon}>
-            <Image source={require('./assets/images/rock_icon.png')}/>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('paper')} style={styles.paperIcon}>
-            <Image source={require('./assets/images/paper_icon.png')}/>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('scissor')} style={styles.scissorsIcon}>
-            <Image source={require('./assets/images/scissors_icon.png')}/>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.onChoiceClick('random')} style={styles.randomIcon}>
-            <Image source={require('./assets/images/random_icon.png')}/>
-          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.onChoiceClick('rock')} style={styles.rockIcon}><RockIcon /></TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.onChoiceClick('paper')} style={styles.paperIcon}><PaperIcon/></TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.onChoiceClick('scissor')} style={styles.scissorsIcon}><ScissorsIcon/></TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.onChoiceClick('random')} style={styles.randomIcon}><RandomIcon/></TouchableOpacity>
         </View>
-      </SafeAreaView>
-    ) : (
-      <SafeAreaView style={styles.container}><Text>{this.state.winner} win</Text></SafeAreaView>
+
+        {/* ゲーム完了後出るモーダル */}
+        <Modal isVisible={this.state.winner != "" ? true : false}>
+          <View style={modalStyles.content}>
+            <Image 
+              source={this.state.winner == 'user' ? require('./assets/images/result_user.png') : require('./assets/images/result_cpu.png')}
+              style={{width: 150, resizeMode: 'contain'}}
+            />
+            <Text style={modalStyles.contentTitle}>YOU {this.state.winner == "user" ? 'WIN' : 'LOSE'}</Text>
+            <TouchableOpacity onPress={this.restartGame}>
+              <Image source={require('./assets/images/restart.png')} style={modalStyles.restartButton}/>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </SafeAreaView>      
     );
   }
 }
@@ -238,16 +259,26 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'android' ? StatusBar.currentHeight : 0
     // flexWrap: 'wrap'
   },
-  bottomHand: {
+  hand: {
     alignSelf: 'center',
-    height: 250, 
+    height: 200, 
     resizeMode: 'contain'
   },
-  playerContainer: {
+  subContainer: {
     flex:1,
     flexDirection: 'row',
     width: '100%'
-    // // justifyContent: 'space-between',
+  },
+  playerContainer: {
+    height: 50,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: "#232586",
+    shadowRadius: 25,
+    shadowOpacity: 1,
+    elevation: 20,
+    borderRadius: 10,
    
   },
   progress: {
@@ -279,6 +310,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -75,
     left: '37%'
-  }
+  },
+
 
 });
+
+const modalStyles = StyleSheet.create({
+  content: {
+    backgroundColor: 'white',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 15,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  contentTitle: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    marginTop: 20,
+  },
+  restartButton: {
+    alignSelf: 'center',
+    height: 150, 
+    resizeMode: 'contain'
+  }
+})
