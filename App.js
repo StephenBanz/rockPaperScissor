@@ -32,7 +32,7 @@ export default class animations extends Component {
     userPoints: 0,
     winner: ''
   };
-  
+
   // 初期値れセットできるように別の変数に保存
   baseState = this.state
 
@@ -75,39 +75,6 @@ export default class animations extends Component {
     }).start();
   };
 
-  // ボタン押下
-  onChoiceClick = userChoice => {
-    const choices = ['rock', 'paper', 'scissor'];
-    let cpuPoints = this.state.cpuPoints
-    let userPoints = this.state.userPoints
-    let winner = ''
-
-    const cpuChoice = choices[Math.floor(Math.random() * choices.length)];
-
-    if (userChoice == 'random') {
-      userChoice = choices[Math.floor(Math.random() * choices.length)];
-    }
-
-    const roundWinner = this.decideRoundWinner(userChoice, cpuChoice)
-    if (roundWinner == 'user') {
-      cpuPoints+=1
-      // cpuPoints = (cpuPoints*10 - 3)/10
-      if (cpuPoints >= 3) { winner = 'user'}
-    } else if (roundWinner == 'cpu') {
-      userPoints+=1
-      if (userPoints >= 3) { winner = 'cpu'}
-    }
-    
-    this.setState({
-      topHand: new Animated.Value(-100), 
-      bottomHand: new Animated.Value(100),
-      userChoice: userChoice, 
-      cpuChoice: cpuChoice,
-      cpuPoints: cpuPoints,
-      userPoints: userPoints,
-      winner: winner
-    })
-  }
 
   // ゲームリセット
   restartGame = () => {
@@ -149,6 +116,40 @@ export default class animations extends Component {
     }
   }
 
+
+// ボタン押下
+  onChoiceClick = userChoice => {
+    const choices = ['rock', 'paper', 'scissor'];
+    let cpuPoints = this.state.cpuPoints
+    let userPoints = this.state.userPoints
+    let winner = ''
+
+    const cpuChoice = choices[Math.floor(Math.random() * choices.length)];
+
+    if (userChoice == 'random') {
+      userChoice = choices[Math.floor(Math.random() * choices.length)];
+    }
+
+    const roundWinner = this.decideRoundWinner(userChoice, cpuChoice)
+    if (roundWinner == 'user') {
+      userPoints+=1
+      if (userPoints == 3) { winner = 'user'}
+    } else if (roundWinner == 'cpu') {
+      cpuPoints+=1
+      if (cpuPoints == 3) { winner = 'cpu'}
+    }
+    
+    this.setState({
+      topHand: new Animated.Value(-100), 
+      bottomHand: new Animated.Value(100),
+      userChoice: userChoice, 
+      cpuChoice: cpuChoice,
+      cpuPoints: cpuPoints,
+      userPoints: userPoints,
+      winner: winner
+    })
+  }
+
   // CPU手表示
   CpuHand = () => {
     switch(this.state.cpuChoice) {
@@ -180,7 +181,7 @@ export default class animations extends Component {
   // CPU分表示
   renderCpu = () => {
     const topHandAnimatedStyles = {
-      transform: [{ translateY: this.state.topHand }],
+      transform: [{ translateY: this.state.topHand }]
     };
 
     return(
@@ -188,40 +189,12 @@ export default class animations extends Component {
         <View style={styles.playerContainer}>
           <CpuHpAvatar/><Text style={{fontSize: 40, fontWeight: 'bold', paddingLeft: 20}}>{this.state.cpuPoints}</Text>
         </View>
-        <View style={[styles.subContainer,{backgroundColor: ''}]}>
+        <View style={[styles.subContainer]}>
+          {/* CPU 手 */}
           <Animated.View style={[topHandAnimatedStyles,{flex: 1}]} >
           <Image source={this.CpuHand()} style={styles.hand}/>
           </Animated.View>
-          
-          <View style={styles.progress}>
-            
-            <Progress.Bar 
-              progress={(3 - this.state.cpuPoints) / 3} 
-              width={150}
-              height={8}
-              color="#ffb24c"
-              unfilledColor="#232586"
-              borderWidth={0}
-              style={styles.progessBar}
-            ></Progress.Bar>
-          </View>
-        </View>
-      </>
-    )
-  }
-
-  // Player分表示
-  renderPlayer = () => {
-    const bottomHandAnimatedStyles = {
-      transform: [{ translateY: this.state.bottomHand }],
-    };
-
-    return (
-      <>
-        <View style={styles.playerContainer}>
-          <UserHpAvatar/><Text style={{fontSize: 40, fontWeight: 'bold', paddingLeft: 20}}>{this.state.userPoints}</Text>
-        </View>
-        <View style={[styles.subContainer,{backgroundColor: ''}]}>
+          {/* Player Progress Bar */}
           <View style={styles.progress}>
             <Progress.Bar 
               progress={(3 - this.state.userPoints) / 3} 
@@ -233,7 +206,38 @@ export default class animations extends Component {
               style={styles.progessBar}
             />
           </View>
+        </View>
+      </>
+    )
+  }
+
+  // Player分表示
+  renderPlayer = () => {
+    const bottomHandAnimatedStyles = {
+      transform: [{ translateY: this.state.bottomHand }]
+    };
+
+    return (
+      <>
+        {/* Player 画像 */}
+        <View style={styles.playerContainer}>
+          <UserHpAvatar/><Text style={{fontSize: 40, fontWeight: 'bold', paddingLeft: 20}}>{this.state.userPoints}</Text>
+        </View>
+        <View style={[styles.subContainer]}>
+          {/* Player Progress Bar */}
+          <View style={styles.progress}>
+            <Progress.Bar 
+              progress={(3 - this.state.cpuPoints) / 3} 
+              width={150}
+              height={8}
+              color="#ffb24c"
+              unfilledColor="#232586"
+              borderWidth={0}
+              style={styles.progessBar}
+            />
+          </View>
           <Animated.View style={[bottomHandAnimatedStyles,{ flex: 1, alignItems: 'flex-start', zIndex: 99}]} >
+            {/*  Player 手 */}
           <Image source={this.UserHand()} style={styles.hand}/>
           </Animated.View>
         </View>
@@ -270,7 +274,7 @@ export default class animations extends Component {
       </Modal>
     )
   }
-
+  
   render() {
     return (
       <SafeAreaView style={styles.container}>
@@ -283,7 +287,7 @@ export default class animations extends Component {
 
         {/* ボタン表示 */}
         { this.renderPlayer() }
-        
+
         {/* ボタン表示 */}
         { this.renderButtons() }
 
