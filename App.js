@@ -13,12 +13,12 @@ import * as Progress from 'react-native-progress';
 import Modal from "react-native-modal";
 
 
-import UserHpAvatar from "./assets/images/user_hp_avatar.svg";
-import CpuHpAvatar from "./assets/images/cpu_hp_avatar.svg";
-import RockIcon from "./assets/images/rock_icon.svg";
-import PaperIcon from "./assets/images/paper_icon.svg";
-import ScissorsIcon from "./assets/images/scissors_icon.svg";
-import RandomIcon from "./assets/images/random_icon.svg";
+import UserHpAvatar from "./assets/images/user_hp_avatar";
+import CpuHpAvatar from "./assets/images/cpu_hp_avatar";
+import RockIcon from "./assets/images/rock_icon";
+import PaperIcon from "./assets/images/paper_icon";
+import ScissorsIcon from "./assets/images/scissors_icon";
+import RandomIcon from "./assets/images/random_icon";
 import { styles, buttonStyles, modalStyles } from "./Style"
 
 export default class animations extends Component {

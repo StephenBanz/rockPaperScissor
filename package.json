@@ -17,7 +17,7 @@
     "react-native": "0.68.2",
     "react-native-modal": "^13.0.1",
     "react-native-progress": "^5.0.0",
-    "react-native-svg": "^12.3.0",
+    "react-native-svg": "12.3.0",
     "react-native-svg-transformer": "^1.0.0",
     "react-native-web": "0.17.7"
   },
